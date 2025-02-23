@@ -336,6 +336,7 @@ void semaphore_task(void *param) {
 
 // Main application
 void app_main(void) {
+    printf("Task scheduler example\n");
     semaphore_init(&semaphore, 1);
 
     // Add tasks with priorities
@@ -345,7 +346,11 @@ void app_main(void) {
     scheduler_add_task(semaphore_task, NULL, 2500, 4);
 
     // Set up the scheduler (choose the type here)
-    scheduler_setup(SCHEDULER_PREEMPTIVE);
+    // scheduler_setup(SCHEDULER_PREEMPTIVE);
+    scheduler_setup(SCHEDULER_PRIORITY);
+
+
+    printf("Starting scheduler\n");
 
     // Main loop
     while (1) {
