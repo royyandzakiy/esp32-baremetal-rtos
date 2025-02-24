@@ -102,3 +102,72 @@ while (1) {
     esp_rom_delay_us(100 * 1000); // Small delay to avoid busy-waiting
 }
 ```
+
+### Example Tasks
+- Producer Task: Produces data and pushes it into the queue.
+- Consumer Task: Consumes data from the queue.
+- Critical Task: Demonstrates mutex usage for critical section protection.
+- Semaphore Task: Demonstrates semaphore usage for resource management
+
+### Example Output
+```bash
+I (40521) Semaphore: Accessing shared resource
+I (41121) Producer: Produced: 32
+I (41221) Critical: In critical section
+I (41821) Consumer: Consumed: 24
+I (42121) Producer: Produced: 33
+I (43021) Semaphore: Accessing shared resource
+I (43621) Consumer: Consumed: 25
+I (43721) Producer: Produced: 34
+I (43821) Critical: In critical section
+I (44721) Producer: Produced: 35
+I (45121) Consumer: Consumed: 26
+E (45281) task_wdt: Task watchdog got triggered. The following tasks/users did not reset the watchdog in time:
+E (45281) task_wdt:  - IDLE0 (CPU 0)
+E (45281) task_wdt: Tasks currently running:
+E (45281) task_wdt: CPU 0: main
+E (45281) task_wdt: CPU 1: IDLE1
+```
+
+### Configuration
+- Max Tasks: `MAX_TASKS` defines the maximum number of tasks (default: 5).
+- Queue Size: `MAX_QUEUE_SIZE` defines the maximum size of the queue (default: 10).
+- Timer Interval: The timer interval for preemptive scheduling can be adjusted in `timer_setup`.
+
+### Dependencies
+- ESP-IDF: The project uses ESP-IDF APIs for timers, logging, and delays.
+- No FreeRTOS: This is a bare-metal implementation and does not depend on FreeRTOS.
+
+---
+
+## Bugs & Future Improvement 🐛
+- solve idle CPU `CPU 1: IDLE1`
+```
+E (45281) task_wdt: Task watchdog got triggered. The following tasks/users did not reset the watchdog in time:
+E (45281) task_wdt:  - IDLE0 (CPU 0)
+E (45281) task_wdt: Tasks currently running:
+E (45281) task_wdt: CPU 0: main
+E (45281) task_wdt: CPU 1: IDLE1
+E (45281) task_wdt: Print CPU 0 (current core) backtrace
+
+
+Backtrace: 0x400D4692:0x3FFB0FF0 0x400D4A54:0x3FFB1010 0x4008387D:0x3FFB1040 0x4000C050:0x3FFB3F80 0x40008544:0x3FFB3F90 0x400D11BD:0x3FFB3FB0 0x400E3A24:0x3FFB3FD0 0x400860C1:0x3FFB4000
+```
+- preemptive scheduler not working `scheduler_setup(SCHEDULER_PREEMPTIVE);`
+```
+I (281) main_task: Calling app_main()
+Task scheduler example
+Starting scheduler
+
+abort() was called at PC 0x40082a83 on core 0
+
+
+Backtrace: 0x40082355:0x3ffb0b00 0x400858cd:0x3ffb0b20 0x4008b609:0x3ffb0b40 0x40082a83:0x3ffb0bb0 0x40082bc1:0x3ffb0be0 0x40082c3a:0x3ffb0c00 0x400d8c3f:0x3ffb0c30 0x400d8281:0x3ffb0f50 0x400e40ad:0x3ffb0f80 0x4008b579:0x3ffb0fb0 0x400d0e91:0x3ffb1000 0x400810f5:0x3ffb1020 0x4008387d:0x3ffb1040 0x40008541:0x3ffb3f90 0x400d11bd:0x3ffb3fb0 0x400e3a24:0x3ffb3fd0 0x400860c1:0x3ffb4000
+
+
+
+
+ELF file SHA256: 8d4fd7470
+
+Rebooting...
+```
